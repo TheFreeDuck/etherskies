@@ -14,6 +14,8 @@ char* http_get(city_node_t *city_node) {
         return NULL;
     }
     
+    
+
     http_membuf_t chunk = {0};
 
     curl_easy_setopt(curl, CURLOPT_URL, city_node->data->url);
@@ -38,7 +40,7 @@ char* http_get(city_node_t *city_node) {
 size_t http_write_data(void *buffer, size_t size, size_t nmemb, void *userp) {
     /* Call back function */
     size_t bytes = size * nmemb;
-    printf("\n\tRecived chunk: %zu bytes\n", bytes);
+    printf("\nRecived chunk: %zu bytes\n", bytes);
 
     /* We grow the buffer with this size! */
     http_membuf_t* mem_t = userp;

@@ -12,7 +12,7 @@ int main() {
         fprintf(stderr, "Failed to create city list\n");
         return 1;
     }
-    city_parse(cities, list);
+    city_parse(list);
     printf("Parsed %u cities\n", list->size);
     city_node_t* current = list->head;
     while (current != NULL) {
@@ -40,17 +40,20 @@ int main() {
         city_free_list(list);
         return 1;
     }
-    printf("\nHTTP response size: %zu bytes\n", strlen(http_response));
+    printf("HTTP response size: %zu bytes\n", strlen(http_response));
 
-    // 4. Parse JSON and update city data
-    if (http_json_parse(http_response, user_city) == 0) {
-        printf("\nCurrent Weather for %s:\n", user_city->data->name);
-        printf("Temperature: %.2f °C\n", user_city->data->temp);
-        printf("Wind speed: %.2f m/s\n", user_city->data->windspeed);
-        printf("Humidity: %.2f %%\n", user_city->data->rel_hum);
-    } else {
-        fprintf(stderr, "Failed to parse JSON.\n");
-    }
+// 4. Parse JSON and update city data
+if (http_json_parse(http_response, user_city) == 0) {
+    printf("\nCurrent Weather for %s:\n", user_city->data->name);
+    printf("Temperature: %.2f °C\n", user_city->data->temp);
+    printf("Wind speed: %.2f m/s\n", user_city->data->windspeed);
+    printf("Humidity: %.2f %%\n", user_city->data->rel_hum);
+
+    // Added functionality: Save updated weather to cache
+    if(city_save_cache(user_city->data)!=0)
+        fprintf(stderr,"Failed to save city cache for %s\n", user_city->data->name);
+}
+
 
     // 5. Free HTTP response
     free(http_response);

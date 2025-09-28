@@ -1,45 +1,20 @@
-/*
-   city.h
-   contains:
-   const char* cities string with cities
-   done: city_list struct
-   done: city_node struct
-   done: city_data struct
-
-   and functions:
-   done: city_make_list()
-   done: city_make_node()
-   done: city_make_data()
-   done: city_add_tail()
-   done: city_parse()
-   done: city_get()
-   done: city_list_free()
-   done: city_data_free()
-   to-do city_remove()
-       removes city_node from list
-   to-do: move functions into city.c as privates
-   to-do: save city_list_create (rename city_list_init)
-   to-do: save structs 
-   to-do: save free functions (rename city_dispose)
- */
-
- /* ----- public api ----- */
-extern char *cities;
-
 #ifndef __CITY_H_
 #define __CITY_H_
 
+#include <stdio.h>
+
+/* ----- Public API ----- */
+
 typedef struct city_data city_data_t;
 struct city_data {
-    char* name;
-    char* url;
+    char* name;       // City name
+    char* url;        // API URL
     double lat;
     double lon;
     double temp;
     double windspeed;
     double rel_hum;
-    double time; 
-    
+    double time;      // timestamp of last update (optional)
 };
 
 typedef struct city_node city_node_t;
@@ -56,14 +31,19 @@ struct city_list {
     unsigned int size; 
 };
 
+/* ----- Public Functions ----- */
+
 city_list_t* city_make_list();
 city_node_t* city_make_node(city_data_t *city_data);
 city_node_t* city_get(city_list_t *city_list);
 void city_data_free(city_data_t* city_data);
-void city_free_list(city_list_t* city_list);
+void city_free_list(city_list_t *city_list);
 
-/* NOT NEEDED NOW?
-void city_remove(city_list_t *city_list);
-*/
+/* Added functionality: city_parse now loads cache or bootstrap */
+void city_parse(city_list_t* city_list);
+
+/* Added functionality: cache helpers */
+int city_save_cache(city_data_t *city_data);
+int city_read_cache(city_list_t *city_list);
 
 #endif /* __CITY_H_ */
