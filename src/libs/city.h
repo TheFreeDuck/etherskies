@@ -1,7 +1,9 @@
 #ifndef __CITY_H_
 #define __CITY_H_
 
+#include <stdbool.h>
 #include <stdio.h>
+#include <time.h>
 
 /* ----- Public API ----- */
 
@@ -14,7 +16,7 @@ struct city_data {
     double temp;
     double windspeed;
     double rel_hum;
-    double time;      // timestamp of last update (optional)
+    time_t cached_at;      // timestamp of last update (optional)
 };
 
 typedef struct city_node city_node_t;
@@ -34,16 +36,14 @@ struct city_list {
 /* ----- Public Functions ----- */
 
 city_list_t* city_make_list();
-city_node_t* city_make_node(city_data_t *city_data);
-city_node_t* city_get(city_list_t *city_list);
+city_node_t* city_make_node(city_data_t* city_data);
+city_node_t* city_get(city_list_t* city_list);
 void city_data_free(city_data_t* city_data);
-void city_free_list(city_list_t *city_list);
-
-/* Added functionality: city_parse now loads cache or bootstrap */
+void city_free_list(city_list_t* city_list);
 void city_parse(city_list_t* city_list);
-
-/* Added functionality: cache helpers */
-int city_save_cache(city_data_t *city_data);
-int city_read_cache(city_list_t *city_list);
+int city_save_cache(city_data_t* city_data);
+int city_read_cache(city_list_t* city_list);
+int city_cache_age_seconds(char *filepath);
+int city_load_cache(city_node_t* city_node, char* fp);
 
 #endif /* __CITY_H_ */

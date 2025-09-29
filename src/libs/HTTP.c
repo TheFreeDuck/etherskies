@@ -3,6 +3,7 @@
 #include <curl/curl.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 #include "jansson.h"
 
 
@@ -85,7 +86,13 @@ int http_json_parse(char* http_response, city_node_t* city_node) {
     if (json_is_number(temperature)) city_node->data->temp = json_number_value(temperature);
     if (json_is_number(windspeed)) city_node->data->windspeed = json_number_value(windspeed);
     if (json_is_number(rel_humidity)) city_node->data->rel_hum = json_number_value(rel_humidity);
-
+    
     json_decref(root);
     return 0;
+}
+
+int http_is_old(city_node_t* city_node) {
+    time_t now = time(NULL);
+    double age = difftime(now, (time_t)city_node->data->cached_at);
+    return age > (DATA_MAX_AGE_S);
 }
