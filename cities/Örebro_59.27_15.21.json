@@ -2,8 +2,8 @@
   "name": "Örebro",
   "lat": 59.274099999999997,
   "lon": 15.2066,
-  "temp": 12.9,
-  "windspeed": 10.1,
-  "rel_hum": 76.0,
-  "cached_at": 1759059899
+  "temp": 0.0,
+  "windspeed": 0.0,
+  "rel_hum": 0.0,
+  "cached_at": 1759147988
 }

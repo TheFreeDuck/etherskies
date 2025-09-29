@@ -12,7 +12,7 @@ BIN      := $(BUILD_DIR)/main
 #  -MMD -MP  : auto-generate dependency files
 #  -Isrc/libs : include your project headers
 #  -Isrc/jansson/src : include Jansson headers directly from its src folder
-CFLAGS   := -std=c11 -Wall -Wextra -MMD -MP -Isrc/libs -Isrc/jansson/src
+CFLAGS   := -std=c11 -Wall -Wextra -MMD -MP -Ilib/jansson  -Isrc/libs -Iincludes -Wno-format-truncation
 
 # Linker flags and libraries
 LDFLAGS  := -flto -Wl,--gc-sections
@@ -38,10 +38,10 @@ DEP      := $(OBJ:.o=.d)
 # ------------------------------------------------------------
 # Only compile Jansson files inside src/jansson/src/
 # (exclude doc/, examples/, test/, etc.)
-JANSSON_SRC := $(shell find src/jansson/src -maxdepth 1 -type f -name '*.c')
+JANSSON_SRC := $(shell find lib/jansson/ -maxdepth 1 -type f -name '*.c')
 
 # Map Jansson .c -> build/jansson/*.o
-JANSSON_OBJ := $(patsubst src/jansson/src/%.c,$(BUILD_DIR)/jansson/%.o,$(JANSSON_SRC))
+JANSSON_OBJ := $(patsubst lib/jansson/%.c,$(BUILD_DIR)/jansson/%.o,$(JANSSON_SRC))
 
 # Add them to global object list
 OBJ += $(JANSSON_OBJ)
@@ -63,13 +63,13 @@ $(BIN): $(OBJ)
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.c
 	@echo "Compiling $<..."
 	@mkdir -p $(dir $@)
-	$(CC) $(CFLAGS) -c $< -o $@
+	@$(CC) $(CFLAGS) -c $< -o $@
 
 # Compile Jansson .c files
-$(BUILD_DIR)/jansson/%.o: src/jansson/src/%.c
+$(BUILD_DIR)/jansson/%.o: lib/jansson/%.c
 	@echo "Compiling Jansson $<..."
 	@mkdir -p $(dir $@)
-	$(CC) $(CFLAGS) -c $< -o $@
+	@$(CC) $(CFLAGS) -c $< -o $@
 
 
 # ------------------------------------------------------------
