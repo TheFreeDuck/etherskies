@@ -9,6 +9,7 @@
 typedef enum status_code {
   STATUS_OK,
   STATUS_FAIL,
+  STATUS_EXIT,
 } status_code_t;
 
 /* ----- Public API ----- */
@@ -42,12 +43,11 @@ struct city_list {
 /* ----- Public Functions ----- */
 
 int city_init(city_list_t** city_list);
-// city_list_t* city_make_list();
-city_node_t* city_make_node(city_data_t* city_data);
-city_node_t* city_get(city_list_t* city_list);
+int city_print_list(city_list_t** city_list);
+int city_get(city_list_t* city_list, city_node_t** out_city);
+//city_node_t* city_get(city_list_t* city_list);
 void city_data_free(city_data_t* city_data);
 void city_free_list(city_list_t* city_list);
-//void city_boot(city_list_t* city_list);
 int city_save_cache(city_data_t* city_data);
 int city_read_cache(city_list_t* city_list);
 int city_cache_age_seconds(char *filepath);

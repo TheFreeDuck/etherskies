@@ -13,6 +13,7 @@
 /* ----- Private function prototypes ----- */
 void city_boot(city_list_t* city_list);
 city_list_t* city_make_list();
+city_node_t* city_make_node(city_data_t* city_data);
 city_data_t *city_make_data(char *city_name, double lat, double lon,
                             double temp, double windspeed, double rel_hum);
 void city_add_tail(city_node_t *city_node, city_list_t *city_list);
@@ -70,6 +71,23 @@ city_node_t *city_make_node(city_data_t *city_data) {
   node->data = city_data;
   node->prev = node->next = NULL;
   return node;
+}
+
+int city_print_list(city_list_t** city_list) {
+  /* Check that both the pointer-to-list 
+  and the actual list are not NULL */
+  if (!city_list || !*city_list) {
+    fprintf(stderr, "Pointer to list or list is NULL\n");
+    return STATUS_FAIL;
+  }
+
+  city_node_t* current = (*city_list)->head;
+  while (current != NULL) {
+    printf("%s\n", current->data->name);
+    current = current->next;
+  }
+
+  return STATUS_OK;
 }
 
 city_data_t *city_make_data(char *city_name, double lat, double lon,
@@ -139,7 +157,36 @@ void city_boot(city_list_t *city_list) {
   }
 }
 
-/*TO-DO ENUM  STATUS_CODE EXIT */
+int city_get(city_list_t* city_list, city_node_t** out_city) {
+    if (!city_list || !out_city) {
+        fprintf(stderr, "List or output pointer is NULL\n");
+        return STATUS_FAIL;
+    }
+
+    char buf[128];
+    if (!fgets(buf, sizeof(buf), stdin)) {
+        return STATUS_FAIL;
+    }
+
+    buf[strcspn(buf, "\n")] = 0;
+    if (strcmp(buf, "q") == 0) {
+        return STATUS_EXIT;  // signal that user wants to quit
+    }
+
+    city_node_t *current = city_list->head;
+    while (current) {
+        if (strcmp(current->data->name, buf) == 0) {
+            *out_city = current;   // assign the found city
+            return STATUS_OK;      // found
+        }
+        current = current->next;
+    }
+
+    return STATUS_FAIL;  // not found
+}
+
+
+/*TO-DO ENUM  STATUS_CODE EXIT 
 city_node_t *city_get(city_list_t *city_list) {
   if (!city_list) {
     return NULL;
@@ -168,7 +215,7 @@ city_node_t *city_get(city_list_t *city_list) {
   }
 
   return NULL;
-}
+}*/
 
 void city_data_free(city_data_t *data) {
   if (!data) {

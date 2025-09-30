@@ -16,22 +16,24 @@ int main() {
 
     /* MAIN PROGRAM LOOP */
     while (1) {
-  
-        city_node_t *current = list->head;
-        while (current != NULL) {
-            printf("%s\n", current->data->name);
-            current = current->next;
+        
+        /* PRINT LINKED LIST */
+        if (city_print_list(&list) != STATUS_OK) {
+            fprintf(stderr, "Failed to print list\n");
+            return STATUS_FAIL;
         }
 
-        /* GET USER CITY */
-        printf("Press 'q' to quit\n");
-        printf("Enter a city name: ");
-        city_node_t *user_city = city_get(list);
-        if (!user_city) {
+        /* USER SELECTED CITY */
+        printf("Select a city: ");
+        city_node_t* user_city = NULL;
+        unsigned user_city_status = city_get(list, &user_city);
+        if (user_city_status == STATUS_EXIT ) {
+            printf("User pressed 'q' to exit\n");
+            return STATUS_EXIT;        
+        } else if (user_city_status == STATUS_FAIL) {
             printf("City not found.\n");
             continue;
         }
-
         printf("\nYou selected: %s\n", user_city->data->name);
 
         /* FILEPATH FOR CACHE */
