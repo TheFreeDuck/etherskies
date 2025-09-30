@@ -10,7 +10,7 @@ int main() {
     /* INIT APP */
     city_list_t* list = NULL;
     if (city_init(&list) != STATUS_OK) {
-        fprintf(stderr, "Failed to init app\n");
+        fprintf(stderr, "Failed to init app.\n");
         return STATUS_FAIL;
     }
 
@@ -19,7 +19,7 @@ int main() {
         
         /* PRINT LINKED LIST */
         if (city_print_list(&list) != STATUS_OK) {
-            fprintf(stderr, "Failed to print list\n");
+            fprintf(stderr, "Failed to print list.\n");
             return STATUS_FAIL;
         }
 
@@ -28,24 +28,17 @@ int main() {
         city_node_t* user_city = NULL;
         unsigned user_city_status = city_get(list, &user_city);
         if (user_city_status == STATUS_EXIT ) {
-            printf("User pressed 'q' to exit\n");
+            printf("User pressed 'q' to exit.\n");
             return STATUS_EXIT;        
         } else if (user_city_status == STATUS_FAIL) {
-            printf("City not found.\n");
+            printf("\nCity not found.\n");
             continue;
         }
         printf("\nYou selected: %s\n", user_city->data->name);
 
-        /* FILEPATH FOR CACHE */
-        char fp[512];
-        snprintf(fp, sizeof(fp), "./cities/%s_%.2f_%.2f.json",
-                 user_city->data->name, user_city->data->lat, user_city->data->lon);
-
-        char *http_response = NULL;
-
+        char* http_response = NULL;
         /* 1) Check if in-memory data is old or uninitialized */
-        /* Kommer ej fungera vid 0.0 grader */
-        if ((user_city->data->temp == 0.0) || http_is_old(user_city)) {
+        if ((user_city->data->temp == INIT_VAL) || http_is_old(user_city)) {
             printf("Data old or missing, fetching from Meteo...\n");
 
             http_response = http_get(user_city);
@@ -63,20 +56,18 @@ int main() {
                     fprintf(stderr, "Failed to save cache for %s\n", user_city->data->name);
             }
 
-            free(http_response);  // only free if actually allocated
-        }
-        /* 2) If memory data is fresh but we still want to check cache file */
-        else if (city_cache_age_seconds(fp) >= 0 &&
-                 city_cache_age_seconds(fp) <= DATA_MAX_AGE_S) {
-            printf("Using cached file for %s (age %d seconds)\n",
-                   user_city->data->name, city_cache_age_seconds(fp));
+            free(http_response);
 
-            if (city_load_cache(user_city, fp) != 0) {
+        } else if (city_cache_age_seconds(user_city->data->fp) >= 0 &&
+                 city_cache_age_seconds(user_city->data->fp) <= DATA_MAX_AGE_S) {
+            printf("Using cached file for %s (age %d seconds)\n",
+                   user_city->data->name, city_cache_age_seconds(user_city->data->fp));
+
+            if (city_load_cache(user_city, user_city->data->fp) != 0) {
                 fprintf(stderr, "Failed to read cached JSON for %s\n", user_city->data->name);
             }
         }
 
-        /* 3) Print weather info (always print from struct, safe) */
         printf("\nCurrent Weather for %s:\n", user_city->data->name);
         printf("Temperature: %.2f °C\n", user_city->data->temp);
         printf("Wind speed: %.2f m/s\n", user_city->data->windspeed);

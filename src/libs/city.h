@@ -1,5 +1,6 @@
 #ifndef __CITY_H_
 #define __CITY_H_
+#define INIT_VAL -1000.0
 
 #include <stdbool.h>
 #include <stdio.h>
@@ -18,6 +19,7 @@ typedef struct city_data city_data_t;
 struct city_data {
     char* name;       // City name
     char* url;        // API URL
+    char* fp;
     double lat;
     double lon;
     double temp;
@@ -37,7 +39,7 @@ typedef struct city_list city_list_t;
 struct city_list {
     city_node_t* head;
     city_node_t* tail;
-    unsigned int size; 
+    unsigned size; 
 };
 
 /* ----- Public Functions ----- */
