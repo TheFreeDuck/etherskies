@@ -157,65 +157,32 @@ void city_boot(city_list_t *city_list) {
   }
 }
 
-int city_get(city_list_t* city_list, city_node_t** out_city) {
-    if (!city_list || !out_city) {
-        fprintf(stderr, "List or output pointer is NULL\n");
-        return STATUS_FAIL;
-    }
+int city_get(city_list_t *city_list, city_node_t **out_city) {
 
-    char buf[128];
-    if (!fgets(buf, sizeof(buf), stdin)) {
-        return STATUS_FAIL;
-    }
-
-    buf[strcspn(buf, "\n")] = 0;
-    if (strcmp(buf, "q") == 0) {
-        return STATUS_EXIT;  // signal that user wants to quit
-    }
-
-    city_node_t *current = city_list->head;
-    while (current) {
-        if (strcmp(current->data->name, buf) == 0) {
-            *out_city = current;   // assign the found city
-            return STATUS_OK;      // found
-        }
-        current = current->next;
-    }
-
-    return STATUS_FAIL;  // not found
-}
-
-
-/*TO-DO ENUM  STATUS_CODE EXIT 
-city_node_t *city_get(city_list_t *city_list) {
-  if (!city_list) {
-    return NULL;
+  if (!city_list || !out_city) {
+    fprintf(stderr, "List or ptr to ptr is NULL\n");
+    return STATUS_FAIL;
   }
-
   char buf[128];
-
-  if (!fgets(buf, sizeof(buf), stdin)) {
-    return NULL;
+  if (fgets(buf, sizeof(buf), stdin) == NULL) {
+    return STATUS_FAIL;
   }
-
   buf[strcspn(buf, "\n")] = 0;
-
   if (strcmp(buf, "q") == 0) {
-    city_free_list(city_list);
-    exit(EXIT_SUCCESS);
+    return STATUS_EXIT;
   }
-
   city_node_t *current = city_list->head;
-
   while (current) {
     if (strcmp(current->data->name, buf) == 0) {
-      return current;
+      /* return found city to ptr-ptr */
+      *out_city = current;
+      return STATUS_OK;
     }
     current = current->next;
   }
-
-  return NULL;
-}*/
+  /* show city not found */
+  return STATUS_FAIL;
+}
 
 void city_data_free(city_data_t *data) {
   if (!data) {
