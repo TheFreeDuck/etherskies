@@ -11,10 +11,13 @@
 #include <time.h>
 
 /* ----- Private function prototypes ----- */
+void city_boot(city_list_t* city_list);
+city_list_t* city_make_list();
 city_data_t *city_make_data(char *city_name, double lat, double lon,
                             double temp, double windspeed, double rel_hum);
 void city_add_tail(city_node_t *city_node, city_list_t *city_list);
 int cache_age_seconds(const char *filepath);
+
 
 /* ----- Bootstrap cities ----- */
 typedef struct {
@@ -34,6 +37,18 @@ city_bootstrap_t bootstrap_arr[] = {
     {"Luleå", 65.5848, 22.1567},     {"Kiruna", 67.8558, 20.2253}};
 
 /* ----------------------------------------- */
+
+int city_init(city_list_t** city_list) {
+  
+  city_list_t* new_list = city_make_list();
+  if (!new_list) {
+    return STATUS_FAIL;
+  }
+  city_boot(new_list);
+  *city_list = new_list; /* return through out-ptr */
+  
+  return STATUS_OK;
+}
 
 city_list_t *city_make_list() {
   city_list_t *list = malloc(sizeof(city_list_t));
@@ -95,14 +110,7 @@ void city_add_tail(city_node_t *node, city_list_t *list) {
   list->size++;
 }
 
-/* -------------------------------------------------------------------
- * city_parse
- * -------------------------------------------------------------------
- * 1) Loads existing cached JSON files (city_read_cache)
- * 2) If cache empty, uses bootstrap_arr and saves each to cache
- * Added functionality: preserves weather data across program runs
- */
-void city_parse(city_list_t *city_list) {
+void city_boot(city_list_t *city_list) {
   if (!city_list) {
     return;
   }
@@ -131,6 +139,7 @@ void city_parse(city_list_t *city_list) {
   }
 }
 
+/*TO-DO ENUM  STATUS_CODE EXIT */
 city_node_t *city_get(city_list_t *city_list) {
   if (!city_list) {
     return NULL;

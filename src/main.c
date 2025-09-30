@@ -6,15 +6,13 @@
 #include <time.h>
 
 int main() {
-    /* INIT LIST */
-    city_list_t *list = city_make_list();
-    if (!list) {
-        fprintf(stderr, "Failed to create city list\n");
-        return 1;
+    
+    /* INIT APP */
+    city_list_t* list = NULL;
+    if (city_init(&list) != STATUS_OK) {
+        fprintf(stderr, "Failed to init app\n");
+        return STATUS_FAIL;
     }
-
-    /* BOOT-STRAP OR READ FROM CACHE TO LIST */
-    city_parse(list);
 
     /* MAIN PROGRAM LOOP */
     while (1) {
@@ -44,6 +42,7 @@ int main() {
         char *http_response = NULL;
 
         /* 1) Check if in-memory data is old or uninitialized */
+        /* Kommer ej fungera vid 0.0 grader */
         if ((user_city->data->temp == 0.0) || http_is_old(user_city)) {
             printf("Data old or missing, fetching from Meteo...\n");
 
