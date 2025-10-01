@@ -1,4 +1,5 @@
 /* city.h */
+
 #ifndef __CITY_H_
 #define __CITY_H_
 #define INIT_VAL -1000.0

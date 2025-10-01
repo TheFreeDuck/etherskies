@@ -1,0 +1,10 @@
+{
+  "name": "Uppsala",
+  "fp": "./cities/Uppsala_59.86_17.64.json",
+  "lat": 59.858600000000003,
+  "lon": 17.6389,
+  "temp": -1000.0,
+  "windspeed": -1000.0,
+  "rel_hum": -1000.0,
+  "cached_at": 1759347924
+}

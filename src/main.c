@@ -31,6 +31,7 @@ int main() {
         unsigned user_city_status = city_get(list, &user_city);
         if (user_city_status == STATUS_EXIT ) {
             printf("User pressed 'q' to exit.\n");
+            city_dispose(&list);
             return STATUS_EXIT;       
         } else if (user_city_status == STATUS_FAIL) {
             printf("\nCity not found.\n");
@@ -52,6 +53,7 @@ int main() {
         printf("Humidity: %.2f %%\n\n", user_city->data->rel_hum);
     }
 
+    /* CLEAN UP */
     city_dispose(&list);
-    return 0;
+    return STATUS_OK;
 }

@@ -1,0 +1,10 @@
+{
+  "name": "Sundsvall",
+  "fp": "./cities/Sundsvall_62.39_17.31.json",
+  "lat": 62.390799999999999,
+  "lon": 17.306899999999999,
+  "temp": -1000.0,
+  "windspeed": -1000.0,
+  "rel_hum": -1000.0,
+  "cached_at": 1759347924
+}

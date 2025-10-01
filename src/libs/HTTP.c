@@ -1,4 +1,5 @@
 /* HTTP.c */
+
 #include "city.h"
 #include "HTTP.h"
 #include <stdio.h>
@@ -15,14 +16,14 @@ int http_cache_age_seconds(char *filepath);
 
 int http_load_cache(city_node_t *city_node, char *fp) {
   if (!city_node || !fp) {
-    return -1;
+    return STATUS_FAIL;
   }
 
   json_error_t error;
   json_t *root = json_load_file(fp, 0, &error);
   if (!root) {
     fprintf(stderr, "Failed to load JSON file %s: %s\n", fp, error.text);
-    return -1;
+    return STATUS_FAIL;
   }
 
   json_t *jtemp = json_object_get(root, "temp");
@@ -42,22 +43,22 @@ int http_load_cache(city_node_t *city_node, char *fp) {
     city_node->data->cached_at = 0.0; // fallback if no cached_at
 
   json_decref(root); // free JSON object
-  return 0;
+  return STATUS_OK;
 }
 
 int http_cache_age_seconds(char *filepath) {
   if (!filepath) {
-    return -1;
+    return STATUS_FAIL;
   }
   json_error_t error;
   json_t *root = json_load_file(filepath, 0, &error);
   if (!root) {
-    return -1;
+    return STATUS_FAIL;
   }
   json_t *jat = json_object_get(root, "cached_at");
   if (!json_is_integer(jat)) {
     json_decref(root);
-    return -1;
+    return STATUS_FAIL;
   }
   int age = (int)(time(NULL) - json_integer_value(jat));
   json_decref(root);
@@ -104,7 +105,7 @@ size_t http_write_data(void *buffer, size_t size, size_t nmemb, void *userp) {
     char *ptr = realloc(mem_t->data, mem_t->size + bytes + 1);
     if (!ptr) {
         printf("Returned 0 to CURL!\n");
-        return 0;
+        return STATUS_FAIL;
     }
     mem_t->data = ptr;
     /* Copies the new data into the buffer
@@ -124,13 +125,13 @@ int http_json_parse(char* http_response, city_node_t* city_node) {
 
     if (!root) {
         fprintf(stderr, "JSON error at line %d: %s\n", error.line, error.text);
-        return -1;
+        return STATUS_FAIL;
     }
 
     json_t *current_weather = json_object_get(root, "current");
     if (!json_is_object(current_weather)) {
         json_decref(root);
-        return -1;
+        return STATUS_FAIL;
     }
 
     json_t *temperature = json_object_get(current_weather, "temperature_2m");
@@ -142,7 +143,7 @@ int http_json_parse(char* http_response, city_node_t* city_node) {
     if (json_is_number(rel_humidity)) city_node->data->rel_hum = json_number_value(rel_humidity);
     
     json_decref(root);
-    return 0;
+    return STATUS_OK;
 }
 
 int http_is_old(city_node_t* city_node) {

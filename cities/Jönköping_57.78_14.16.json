@@ -1,0 +1,10 @@
+{
+  "name": "Jönköping",
+  "fp": "./cities/Jönköping_57.78_14.16.json",
+  "lat": 57.781500000000001,
+  "lon": 14.1562,
+  "temp": -1000.0,
+  "windspeed": -1000.0,
+  "rel_hum": -1000.0,
+  "cached_at": 1759347924
+}

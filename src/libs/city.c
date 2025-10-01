@@ -1,8 +1,5 @@
-/*  
-    city.c
-    TO-DO: keep refactoring and turning functions into STATUS OK or FAIL
-    TO-DO: clean up cache handling?
-*/
+/* city.c */
+
 #include "city.h"
 #include "jansson.h"
 #include "meteo.h"
@@ -15,7 +12,7 @@
 #include <sys/stat.h>
 #include <time.h>
 
-/* ----- Private function prototypes ----- */
+/* ----- PRIVATE FUNCTIONS ----- */
 int city_boot(city_list_t *city_list);
 int city_data_free(city_data_t* city_data);
 int city_free_list(city_list_t* city_list);
@@ -25,7 +22,7 @@ city_data_t *city_make_data(char *city_name, char* fp, double lat, double lon, d
 void city_add_tail(city_node_t *city_node, city_list_t *city_list);
 int city_read_cache(city_list_t* city_list);
 
-/* ----- Bootstrap cities ----- */
+/* ----- BOOTSTRAP CITIES ----- */
 typedef struct {
   char name[32];
   char* fp;
@@ -51,8 +48,8 @@ city_bootstrap_t bootstrap_arr[] = {
     {"Luleå",       "", 65.5848, 22.1567},
     {"Kiruna",      "", 67.8558, 20.2253}
 };
-/* ---------------------------- */
-/* ----- INIT and DISPOSE ----- */
+/* -------------------------- */
+/* ----- INIT & DISPOSE ----- */
 int city_init(city_list_t **city_list) {
 
   city_list_t *new_list = city_make_list();
@@ -60,6 +57,7 @@ int city_init(city_list_t **city_list) {
     return STATUS_FAIL;
   }
   if (city_boot(new_list) != STATUS_OK) {
+    city_dispose(&new_list);
     return STATUS_FAIL;
   }
   *city_list = new_list; /* return through out-ptr */
@@ -362,6 +360,7 @@ int city_print_list(city_list_t **city_list) {
     return STATUS_FAIL;
   }
 
+  printf("\n");
   city_node_t *current = (*city_list)->head;
   while (current != NULL) {
     printf("%s\n", current->data->name);

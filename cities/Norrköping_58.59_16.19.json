@@ -1,0 +1,10 @@
+{
+  "name": "Norrköping",
+  "fp": "./cities/Norrköping_58.59_16.19.json",
+  "lat": 58.587699999999998,
+  "lon": 16.192399999999999,
+  "temp": -1000.0,
+  "windspeed": -1000.0,
+  "rel_hum": -1000.0,
+  "cached_at": 1759347924
+}
