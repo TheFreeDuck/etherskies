@@ -1,3 +1,5 @@
+/* HTTP.c */
+#include "city.h"
 #include "HTTP.h"
 #include <stdio.h>
 #include <curl/curl.h>
@@ -6,6 +8,61 @@
 #include <time.h>
 #include "jansson.h"
 
+/* ----- PRIVATE FUNCTIONS ----- */
+int http_load_cache(city_node_t* city_node, char* fp);
+int http_cache_age_seconds(char *filepath);
+/* ----------------------------- */
+
+int http_load_cache(city_node_t *city_node, char *fp) {
+  if (!city_node || !fp) {
+    return -1;
+  }
+
+  json_error_t error;
+  json_t *root = json_load_file(fp, 0, &error);
+  if (!root) {
+    fprintf(stderr, "Failed to load JSON file %s: %s\n", fp, error.text);
+    return -1;
+  }
+
+  json_t *jtemp = json_object_get(root, "temp");
+  json_t *jwind = json_object_get(root, "windspeed");
+  json_t *jhum = json_object_get(root, "rel_hum");
+  json_t *jat = json_object_get(root, "cached_at");
+
+  if (jtemp && json_is_number(jtemp))
+    city_node->data->temp = json_number_value(jtemp);
+  if (jwind && json_is_number(jwind))
+    city_node->data->windspeed = json_number_value(jwind);
+  if (jhum && json_is_number(jhum))
+    city_node->data->rel_hum = json_number_value(jhum);
+  if (jat && json_is_integer(jat))
+    city_node->data->cached_at = (double)json_integer_value(jat);
+  else
+    city_node->data->cached_at = 0.0; // fallback if no cached_at
+
+  json_decref(root); // free JSON object
+  return 0;
+}
+
+int http_cache_age_seconds(char *filepath) {
+  if (!filepath) {
+    return -1;
+  }
+  json_error_t error;
+  json_t *root = json_load_file(filepath, 0, &error);
+  if (!root) {
+    return -1;
+  }
+  json_t *jat = json_object_get(root, "cached_at");
+  if (!json_is_integer(jat)) {
+    json_decref(root);
+    return -1;
+  }
+  int age = (int)(time(NULL) - json_integer_value(jat));
+  json_decref(root);
+  return age;
+}
 
 char* http_get(city_node_t *city_node) {
     
@@ -14,8 +71,6 @@ char* http_get(city_node_t *city_node) {
         fprintf(stderr, "Curled returned NULL\n");
         return NULL;
     }
-    
-    
 
     http_membuf_t chunk = {0};
 
@@ -32,7 +87,6 @@ char* http_get(city_node_t *city_node) {
     }
 
     curl_easy_cleanup(curl);
-
 
     /* Return buffer of recived data and size of buffer */
     return chunk.data;
@@ -95,4 +149,64 @@ int http_is_old(city_node_t* city_node) {
     time_t now = time(NULL);
     double age = difftime(now, (time_t)city_node->data->cached_at);
     return age > (DATA_MAX_AGE_S);
+}
+
+/* NEW FUNCTION: http_get_weather_data() */
+int http_get_weather_data(city_node_t* city_node) {
+    
+    // --- STEP 1: Check In-Memory Data (Highest Priority) ---
+    // If data is initialized AND not old, we are done.
+    if (city_node->data->temp != INIT_VAL && !http_is_old(city_node)) {
+        printf("Using fresh in-memory data for %s (age %ld seconds).\n", 
+               city_node->data->name, (long)difftime(time(NULL), city_node->data->cached_at));
+        return STATUS_OK; 
+    }
+
+    // --- STEP 2: Check File Cache (Second Priority) ---
+    int file_age = http_cache_age_seconds(city_node->data->fp);
+
+    if (file_age >= 0 && file_age <= DATA_MAX_AGE_S) {
+        
+        // File exists and is young enough. Attempt to load it.
+        if (http_load_cache(city_node, city_node->data->fp) == 0) {
+            
+            // CRITICAL CHECK: Ensure the loaded data is not just stale INIT_VALs
+            if (city_node->data->temp != INIT_VAL) {
+                printf("Using fresh cached file for %s (age %d seconds).\n", 
+                       city_node->data->name, file_age);
+                return STATUS_OK; // Success: Loaded fresh, initialized cache.
+            }
+            
+            // If we are here, the cache file was fresh but contained uninitialized data.
+            printf("Cache exist but has no weather data\n");
+            
+        } else {
+            // Failure to load the cache file (e.g., corrupt JSON).
+            fprintf(stderr, "Failed to read cached JSON for %s.\n", city_node->data->name);
+        }
+    }
+    
+    // --- STEP 3: Fallback - Fetch from Network ---
+    printf("Data missing, old, or cache invalid. Fetching from Meteo...\n");
+    
+    char* http_response = http_get(city_node);
+    if (!http_response) {
+        fprintf(stderr, "HTTP request failed.\n");
+        return STATUS_FAIL;
+    }
+    
+    // Parse the new data
+    if (http_json_parse(http_response, city_node) != 0) {
+        fprintf(stderr, "Failed to parse HTTP response.\n");
+        free(http_response);
+        return STATUS_FAIL;
+    }
+    
+    // Save the new data to cache
+    if (city_save_cache(city_node->data) != 0)
+        fprintf(stderr, "Failed to save cache for %s\n", city_node->data->name);
+        
+    free(http_response);
+
+    return STATUS_OK;
 }

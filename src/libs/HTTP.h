@@ -1,10 +1,5 @@
 /*
-  includes:
-  done: struct for memory buffer
-  done: http_get()
-  done: http_write_data()
-  TODO: http_json_parse()
-  TODO_ http_free()
+    HTTP.h
  */
 
 #define DATA_MAX_AGE_S 900
@@ -22,6 +17,8 @@ struct http_membuf {
     size_t size;
 };
 
+/* NEW: Unified function to fetch data, handles cache and network */
+int http_get_weather_data(city_node_t* city_node);
 char* http_get(city_node_t* city_node);
 /* these  func args are standard curl stuff this is our dynamic buffer. */
 size_t http_write_data(void* buffer, size_t size, size_t nmemb, void* userp);

@@ -1,3 +1,5 @@
+/* meteo.h */
+
 #include "meteo.h"
 #include "city.h"
 #include <stdio.h>

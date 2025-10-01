@@ -1,4 +1,5 @@
-/*
+/*  
+    city.c
     TO-DO: keep refactoring and turning functions into STATUS OK or FAIL
     TO-DO: clean up cache handling?
 */
@@ -16,12 +17,13 @@
 
 /* ----- Private function prototypes ----- */
 int city_boot(city_list_t *city_list);
+int city_data_free(city_data_t* city_data);
+int city_free_list(city_list_t* city_list);
 city_list_t *city_make_list();
 city_node_t *city_make_node(city_data_t *city_data);
-city_data_t *city_make_data(char *city_name, char* fp, double lat, double lon,
-                            double temp, double windspeed, double rel_hum);
+city_data_t *city_make_data(char *city_name, char* fp, double lat, double lon, double temp, double windspeed, double rel_hum);
 void city_add_tail(city_node_t *city_node, city_list_t *city_list);
-int cache_age_seconds(const char *filepath);
+int city_read_cache(city_list_t* city_list);
 
 /* ----- Bootstrap cities ----- */
 typedef struct {
@@ -49,8 +51,8 @@ city_bootstrap_t bootstrap_arr[] = {
     {"Luleå",       "", 65.5848, 22.1567},
     {"Kiruna",      "", 67.8558, 20.2253}
 };
-/* ----------------------------------------- */
-
+/* ---------------------------- */
+/* ----- INIT and DISPOSE ----- */
 int city_init(city_list_t **city_list) {
 
   city_list_t *new_list = city_make_list();
@@ -92,17 +94,20 @@ int city_boot(city_list_t *city_list) {
     return STATUS_FAIL;
   }
 
-  unsigned num_read_files = city_read_cache(city_list);
-  if (num_read_files == STATUS_OK) {
+  unsigned read_cache = city_read_cache(city_list);
+  if (read_cache == STATUS_OK) {
+    /* we successfully read files from cache */
     printf("number %u cities from cache\n", city_list->size);
     return STATUS_OK;
   }
 
+  /* we did not read any files from cache */
   printf("Cache empty, using bootstrap and saving to cache\n");
-  size_t n = sizeof(bootstrap_arr) / sizeof(bootstrap_arr[0]);
-  for (size_t i = 0; i < n; i++) {
+  unsigned n = sizeof(bootstrap_arr) / sizeof(bootstrap_arr[0]);
+  for (unsigned i = 0; i < n; i++) {
     city_bootstrap_t *b = &bootstrap_arr[i];
-    city_data_t *data = city_make_data(b->name, b->fp, b->lat, b->lon, INIT_VAL, 0.0, 0.0);
+    city_data_t *data = city_make_data(b->name,
+     b->fp, b->lat, b->lon, INIT_VAL, INIT_VAL, INIT_VAL);
     if (!data) {
       continue;
     }
@@ -116,6 +121,52 @@ int city_boot(city_list_t *city_list) {
   }
   return STATUS_OK;
 }
+
+int city_dispose(city_list_t **city_list) {
+  /* Check that both the pointer-to-list
+  and the actual list are not NULL */
+  if (!city_list || !*city_list) {
+    fprintf(stderr, "Pointer to list or list is NULL\n");
+    return STATUS_FAIL;
+  }
+  if (city_free_list(*city_list) != STATUS_OK) {
+    printf("Failed to free list!\n");
+    return STATUS_FAIL;
+  }
+  *city_list = NULL;
+  return STATUS_OK;
+}
+
+int city_data_free(city_data_t *data) {
+  if (!data) {
+    return STATUS_FAIL;
+  }
+  if (data->name) free(data->name); 
+  if (data->url) free(data->url);
+  if (data->fp) free(data->fp);
+  free(data);
+  return STATUS_OK;
+}
+
+int city_free_list(city_list_t *list) {
+  if (!list) {
+    return STATUS_FAIL;
+  }
+  city_node_t *current = list->head;
+  while (current) {
+    city_node_t *next = current->next;
+    if (current->data) {
+      city_data_free(current->data);
+    }
+
+    free(current);
+    current = next;
+  }
+  free(list);
+  return STATUS_OK;
+}
+
+/* ----- CACHING ----- */
 
 int city_read_cache(city_list_t *list) {
 
@@ -189,22 +240,43 @@ int city_read_cache(city_list_t *list) {
   return STATUS_OK;
 }
 
-int city_print_list(city_list_t **city_list) {
-  /* Check that both the pointer-to-list
-  and the actual list are not NULL */
-  if (!city_list || !*city_list) {
-    fprintf(stderr, "Pointer to list or list is NULL\n");
+int city_save_cache(city_data_t *data) {
+  if (!data) {
+    return STATUS_FAIL;
+  }
+  /* Makes folder "cities" if doesn't exist */
+  if (mkdir("./cities", 0755) != 0 && errno != EEXIST) {
+    perror("mkdir");
     return STATUS_FAIL;
   }
 
-  city_node_t *current = (*city_list)->head;
-  while (current != NULL) {
-    printf("%s\n", current->data->name);
-    current = current->next;
-  }
+  char filepath[512];
+  snprintf(filepath, sizeof(filepath), "./cities/%s_%.2f_%.2f.json", data->name,
+           data->lat, data->lon);
 
-  return STATUS_OK;
+  json_t *root = json_object();
+  json_object_set_new(root, "name", json_string(data->name));
+  json_object_set_new(root, "fp", json_string(data->fp));
+  json_object_set_new(root, "lat", json_real(data->lat));
+  json_object_set_new(root, "lon", json_real(data->lon));
+  json_object_set_new(root, "temp", json_real(data->temp));
+  json_object_set_new(root, "windspeed", json_real(data->windspeed));
+  json_object_set_new(root, "rel_hum", json_real(data->rel_hum));
+  json_object_set_new(root, "cached_at", json_integer(time(NULL)));
+
+  time_t now = time(NULL);
+  data->cached_at = now; // so http_is_old() works immediately
+  json_object_set_new(root, "cached_at", json_integer(now));
+
+  if (json_dump_file(root, filepath, JSON_INDENT(2)) != 0) {
+    json_decref(root);
+    return -1;
+  }
+  json_decref(root);
+  return 0;
 }
+
+/* ----- LIST FUNCTIONS ----- */
 
 city_data_t *city_make_data(char* city_name, char* fp, double lat, double lon,
                             double temp, double windspeed, double rel_hum) {
@@ -282,124 +354,19 @@ int city_get(city_list_t *city_list, city_node_t **out_city) {
   return STATUS_FAIL;
 }
 
-void city_data_free(city_data_t *data) {
-  if (!data) {
-    return;
-  }
-  if (data->name) {
-    free(data->name);
-  }
-  if (data->url) {
-    free(data->url);
-  }
-  free(data);
-}
-
-void city_free_list(city_list_t *list) {
-  if (!list) {
-    return;
-  }
-  city_node_t *current = list->head;
-  while (current) {
-    city_node_t *next = current->next;
-    if (current->data) {
-      city_data_free(current->data);
-    }
-
-    free(current);
-    current = next;
-  }
-  free(list);
-}
-
-/* -------------------------------------------------------------------
- * Cache helpers
- * ------------------------------------------------------------------- */
-
-int city_save_cache(city_data_t *data) {
-  if (!data) {
-    return -1;
-  }
-  /* Makes folder "cities" if doesn't exist */
-  if (mkdir("./cities", 0755) != 0 && errno != EEXIST) {
-    perror("mkdir");
-    return -1;
+int city_print_list(city_list_t **city_list) {
+  /* Check that both the pointer-to-list
+  and the actual list are not NULL */
+  if (!city_list || !*city_list) {
+    fprintf(stderr, "Pointer to list or list is NULL\n");
+    return STATUS_FAIL;
   }
 
-  char filepath[512];
-  snprintf(filepath, sizeof(filepath), "./cities/%s_%.2f_%.2f.json", data->name,
-           data->lat, data->lon);
-
-  json_t *root = json_object();
-  json_object_set_new(root, "name", json_string(data->name));
-  json_object_set_new(root, "fp", json_string(data->fp));
-  json_object_set_new(root, "lat", json_real(data->lat));
-  json_object_set_new(root, "lon", json_real(data->lon));
-  json_object_set_new(root, "temp", json_real(data->temp));
-  json_object_set_new(root, "windspeed", json_real(data->windspeed));
-  json_object_set_new(root, "rel_hum", json_real(data->rel_hum));
-  json_object_set_new(root, "cached_at", json_integer(time(NULL)));
-
-  time_t now = time(NULL);
-  data->cached_at = now; // so http_is_old() works immediately
-  json_object_set_new(root, "cached_at", json_integer(now));
-
-  if (json_dump_file(root, filepath, JSON_INDENT(2)) != 0) {
-    json_decref(root);
-    return -1;
-  }
-  json_decref(root);
-  return 0;
-}
-
-int city_cache_age_seconds(char *filepath) {
-  if (!filepath) {
-    return -1;
-  }
-  json_error_t error;
-  json_t *root = json_load_file(filepath, 0, &error);
-  if (!root) {
-    return -1;
-  }
-  json_t *jat = json_object_get(root, "cached_at");
-  if (!json_is_integer(jat)) {
-    json_decref(root);
-    return -1;
-  }
-  int age = (int)(time(NULL) - json_integer_value(jat));
-  json_decref(root);
-  return age;
-}
-
-/* reads user city */
-int city_load_cache(city_node_t *city_node, char *fp) {
-  if (!city_node || !fp) {
-    return -1;
+  city_node_t *current = (*city_list)->head;
+  while (current != NULL) {
+    printf("%s\n", current->data->name);
+    current = current->next;
   }
 
-  json_error_t error;
-  json_t *root = json_load_file(fp, 0, &error);
-  if (!root) {
-    fprintf(stderr, "Failed to load JSON file %s: %s\n", fp, error.text);
-    return -1;
-  }
-
-  json_t *jtemp = json_object_get(root, "temp");
-  json_t *jwind = json_object_get(root, "windspeed");
-  json_t *jhum = json_object_get(root, "rel_hum");
-  json_t *jat = json_object_get(root, "cached_at");
-
-  if (jtemp && json_is_number(jtemp))
-    city_node->data->temp = json_number_value(jtemp);
-  if (jwind && json_is_number(jwind))
-    city_node->data->windspeed = json_number_value(jwind);
-  if (jhum && json_is_number(jhum))
-    city_node->data->rel_hum = json_number_value(jhum);
-  if (jat && json_is_integer(jat))
-    city_node->data->cached_at = (double)json_integer_value(jat);
-  else
-    city_node->data->cached_at = 0.0; // fallback if no cached_at
-
-  json_decref(root); // free JSON object
-  return 0;
+  return STATUS_OK;
 }

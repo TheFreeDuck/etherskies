@@ -1,3 +1,5 @@
+/* meteo.h */
+
 #ifndef __METEO_H_
 #define __METEO_H_
 #include "city.h"

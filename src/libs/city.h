@@ -1,3 +1,4 @@
+/* city.h */
 #ifndef __CITY_H_
 #define __CITY_H_
 #define INIT_VAL -1000.0
@@ -47,11 +48,7 @@ struct city_list {
 int city_init(city_list_t** city_list);
 int city_print_list(city_list_t** city_list);
 int city_get(city_list_t* city_list, city_node_t** out_city);
-void city_data_free(city_data_t* city_data);
-void city_free_list(city_list_t* city_list);
 int city_save_cache(city_data_t* city_data);
-int city_read_cache(city_list_t* city_list);
-int city_cache_age_seconds(char *filepath);
-int city_load_cache(city_node_t* city_node, char* fp);
+int city_dispose(city_list_t** city_list);
 
 #endif /* __CITY_H_ */
