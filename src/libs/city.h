@@ -15,21 +15,20 @@ typedef enum status_code {
   STATUS_EXIT,
 } status_code_t;
 
-/* ----- Public API ----- */
-
+/* ----- Struct for keeping city data ----- */
 typedef struct city_data city_data_t;
 struct city_data {
-    char* name;       // City name
-    char* url;        // API URL
+    char* name;
+    char* url;
     char* fp;
     double lat;
     double lon;
     double temp;
     double windspeed;
     double rel_hum;
-    time_t cached_at;      // timestamp of last update (optional)
+    time_t cached_at;
 };
-
+/* ----- Structs for linked list ----- */
 typedef struct city_node city_node_t;
 struct city_node {
     city_data_t* data;
@@ -45,7 +44,6 @@ struct city_list {
 };
 
 /* ----- Public Functions ----- */
-
 int city_init(city_list_t** city_list);
 int city_print_list(city_list_t** city_list);
 int city_get(city_list_t* city_list, city_node_t** out_city);

@@ -4,7 +4,7 @@
 CC       := gcc
 SRC_DIR  := src
 BUILD_DIR := build
-BIN      := $(BUILD_DIR)/main
+BIN      := $(BUILD_DIR)/etherskies
 
 # Compiler flags:
 #  -std=c11   : C11 standard
@@ -53,7 +53,7 @@ OBJ += $(JANSSON_OBJ)
 
 # Default target
 all: $(BIN)
-	@echo "✅ Build complete."
+	@echo "Build complete."
 
 # Link all objects into final binary
 $(BIN): $(OBJ)
@@ -80,11 +80,6 @@ run: $(BIN)
 
 clean:
 	@rm -rf $(BUILD_DIR) $(BIN)
-
-print:
-	@echo "Project sources: $(SRC)"
-	@echo "Jansson sources: $(JANSSON_SRC)"
-	@echo "All objects: $(OBJ)"
 
 # Include auto-generated dependency files
 -include $(DEP)
