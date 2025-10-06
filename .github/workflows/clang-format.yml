@@ -1,6 +1,14 @@
+
 name: Check Formatting
 
 on:
+  push:
+    branches:
+      - main          # or '*' for all branches
+    paths:
+      - '**/*.c'
+      - '**/*.cpp'
+      - '**/*.h'
   pull_request:
     paths:
       - '**/*.c'
@@ -19,9 +27,16 @@ jobs:
 
       - name: Check formatting
         run: |
-          misformatted=$(find . -name '*.c' -o -name '*.cpp' -o -name '*.h' \
-                        | xargs clang-format -style=file --dry-run --Werror)
-          if [ $? -ne 0 ]; then
+          misformatted=0
+          while IFS= read -r -d '' file; do
+            if ! clang-format -style=file --dry-run --Werror "$file"; then
+              echo "File not properly formatted: $file"
+              misformatted=1
+            fi
+          done < <(find . -type f \( -name '*.c' -o -name '*.cpp' -o -name '*.h' \) -print0)
+
+          if [ $misformatted -ne 0 ]; then
             echo "Some files are not properly formatted!"
             exit 1
           fi
+
