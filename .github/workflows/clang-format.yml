@@ -1,10 +1,9 @@
-
 name: Check Formatting
 
 on:
   push:
     branches:
-      - main          # or '*' for all branches
+      - main
     paths:
       - '**/*.c'
       - '**/*.cpp'
