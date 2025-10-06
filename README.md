@@ -49,17 +49,19 @@ git clone https://github.com/yourusername/etherskies.git
 cd etherskies
 ```
 
-2. Ensure the lib branch is available (needed for jansson):
+2. Ensure the lib branch is cloned into ../lib:
 
-To clone the jansson library in project root run:
+To clone the jansson library from project root run:
 ```bash
 git clone --branch lib --single-branch https://github.com/timackevald/etherskies.git ../lib
 ```
+This will create a lib folder outside of the root with all library source files.
 
 The project uses a symlink to access the Jansson library. The symlink should point to:
 ```
 lib/jansson -> ../../lib/jansson
 ```
+More symmlinks may be added in the future.
 
 If the symlink is broken or missing, recreate it from the project root:
 ```bash
