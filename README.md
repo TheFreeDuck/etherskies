@@ -69,14 +69,9 @@ rm lib/jansson
 ln -s ../../lib/jansson lib/
 ```
 
-3. Build the project:
+3. Run the application:
 ```bash
-make
-```
-
-4. Run the application:
-```bash
-./build/etherskies
+make run
 ```
 
 ## Usage
