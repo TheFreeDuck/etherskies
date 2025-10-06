@@ -10,17 +10,17 @@
 
 /* ----- Error handling ----- */
 typedef enum status_code {
-  STATUS_OK,
-  STATUS_FAIL,
-  STATUS_EXIT,
+    STATUS_OK,
+    STATUS_FAIL,
+    STATUS_EXIT,
 } status_code_t;
 
 /* ----- Struct for keeping city data ----- */
 typedef struct city_data city_data_t;
 struct city_data {
-    char* name;
-    char* url;
-    char* fp;
+    char*  name;
+    char*  url;
+    char*  fp;
     double lat;
     double lon;
     double temp;
@@ -40,7 +40,7 @@ typedef struct city_list city_list_t;
 struct city_list {
     city_node_t* head;
     city_node_t* tail;
-    unsigned size; 
+    unsigned     size;
 };
 
 /* ----- Public Functions ----- */

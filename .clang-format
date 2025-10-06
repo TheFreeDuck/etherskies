@@ -3,7 +3,7 @@
 
 BasedOnStyle: LLVM
 Language: Cpp   # clang-format treats C as "Cpp", but it works fine.
-Standard: Cpp03 # Closest to C90
+Standard: Cpp03 # Closest to C90/c99
 IndentWidth: 4
 TabWidth: 4
 UseTab: Never
