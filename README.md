@@ -196,7 +196,7 @@ https://api.open-meteo.com/v1/forecast?latitude=59.33&longitude=18.07&current=te
 
 **Team Stockholm 1**
 - Chas Academy, SUVX25
-- 2025-01
+- 2025-09-10
 
 ## License
 
