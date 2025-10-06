@@ -12,7 +12,7 @@ BIN      := $(BUILD_DIR)/etherskies
 #  -MMD -MP  : auto-generate dependency files
 #  -Isrc/libs : include your project headers
 #  -Isrc/jansson/src : include Jansson headers directly from its src folder
-CFLAGS   := -std=c11 -Wall -Wextra -MMD -MP -Ilib/jansson  -Isrc/libs -Iincludes -Wno-format-truncation -g
+CFLAGS   := -std=c99 -Wall -Wextra -MMD -MP -Ilib/jansson  -Isrc/libs -Iincludes -Wno-format-truncation -g
 
 # Linker flags and libraries
 LDFLAGS  := -flto -Wl,--gc-sections
