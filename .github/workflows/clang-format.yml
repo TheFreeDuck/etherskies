@@ -1,0 +1,27 @@
+name: Check Formatting
+
+on:
+  pull_request:
+    paths:
+      - '**/*.c'
+      - '**/*.cpp'
+      - '**/*.h'
+
+jobs:
+  clang-format:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install clang-format
+        run: sudo apt-get update && sudo apt-get install -y clang-format
+
+      - name: Check formatting
+        run: |
+          misformatted=$(find . -name '*.c' -o -name '*.cpp' -o -name '*.h' \
+                        | xargs clang-format -style=file --dry-run --Werror)
+          if [ $? -ne 0 ]; then
+            echo "Some files are not properly formatted!"
+            exit 1
+          fi
