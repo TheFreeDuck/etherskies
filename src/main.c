@@ -36,7 +36,7 @@ int main() {
         if (user_city_status == STATUS_EXIT) {
             printf("User pressed 'q' to exit.\n");
             city_dispose(&list);
-            return STATUS_EXIT;
+            return STATUS_OK;
         } else if (user_city_status == STATUS_FAIL) {
             printf("\nCity not found.\n");
             continue;
