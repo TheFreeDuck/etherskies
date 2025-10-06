@@ -40,7 +40,6 @@
    This limits the depth of e.g. array-within-array constructions. */
 #define JSON_PARSER_MAX_DEPTH 2048
 
-
 #define HAVE_STDINT_H 1
 
 #define HAVE_UNISTD_H 1

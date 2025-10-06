@@ -1,6 +1,6 @@
 # Etherskies
 
-> A CLI weather tool for checking current weather conditions in Swedish cities.
+> A CLI weather tool for checking current weather conditions in cities worldwide.
 
 Etherskies is a command-line weather application that fetches real-time weather data from Open-Meteo API. Built as a school project at Chas Academy (SUVX25) by Team Stockholm 1.
 
@@ -49,27 +49,29 @@ git clone https://github.com/yourusername/etherskies.git
 cd etherskies
 ```
 
-2. Ensure the Jansson library is available:
+2. Ensure the lib branch is cloned into ../lib:
+
+To clone the jansson library from project root run:
+```bash
+git clone --branch lib --single-branch https://github.com/timackevald/etherskies.git ../lib
+```
+This will create a lib folder outside of the root with all library source files.
 
 The project uses a symlink to access the Jansson library. The symlink should point to:
 ```
-lib/jansson -> ../../jansson/libs/jansson
+lib/jansson -> ../../lib/jansson
 ```
+More symmlinks may be added in the future.
 
 If the symlink is broken or missing, recreate it from the project root:
 ```bash
 rm lib/jansson
-ln -s ../../jansson/libs/jansson lib/jansson
+ln -s ../../lib/jansson lib/
 ```
 
-3. Build the project:
+3. Run the application:
 ```bash
-make
-```
-
-4. Run the application:
-```bash
-./build/etherskies
+make run
 ```
 
 ## Usage
@@ -194,7 +196,7 @@ https://api.open-meteo.com/v1/forecast?latitude=59.33&longitude=18.07&current=te
 
 **Team Stockholm 1**
 - Chas Academy, SUVX25
-- 2025-01
+- 2025-09-10
 
 ## License
 
