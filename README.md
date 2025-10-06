@@ -1,6 +1,6 @@
 # Etherskies
 
-> A CLI weather tool for checking current weather conditions in Swedish cities.
+> A CLI weather tool for checking current weather conditions in cities worldwide.
 
 Etherskies is a command-line weather application that fetches real-time weather data from Open-Meteo API. Built as a school project at Chas Academy (SUVX25) by Team Stockholm 1.
 
