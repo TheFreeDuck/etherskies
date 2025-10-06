@@ -278,12 +278,16 @@ int city_save_cache(city_data_t* data) {
         return STATUS_FAIL;
     }
 
-    tinydir_dir dir;
+    /*tinydir_dir dir;
     if (tinydir_open(&dir, "./cities") != 0) {
         printf("Directory: Cities could not be opened!\n");
         return STATUS_FAIL;
     }
-    tinydir_close(&dir);
+    tinydir_close(&dir);*/
+    if (mkdir("./cities", 0755) != 0 && errno != EEXIST) {
+    perror("mkdir");
+    return STATUS_FAIL;
+    }
 
     json_t* root = json_object();
     json_object_set_new(root, "name", json_string(data->name));
