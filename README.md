@@ -53,7 +53,7 @@ cd etherskies
 
 The project uses a symlink to access the Jansson library. The symlink should point to:
 ```
-lib/jansson -> ../../jansson/libs/jansson
+lib/jansson -> ../../lib/jansson
 ```
 
 If the symlink is broken or missing, recreate it from the project root:
