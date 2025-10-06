@@ -12,24 +12,31 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <unistd.h>
 
 int main() {
-    
+
+    printf("Welcome!\n");
+    sleep(1);
+
     /* INIT APP */
     city_list_t* list = NULL;
     if (city_init(&list) != STATUS_OK) {
         fprintf(stderr, "Failed to init app.\n");
         return STATUS_FAIL;
     }
+    sleep(1);
 
-    while (1) {
-        
         if (city_print_list(&list) != STATUS_OK) {
             fprintf(stderr, "Failed to print list.\n");
             return STATUS_FAIL;
         }
+        sleep(1);
 
-        printf("Select a city: ");
+    /* LOOP CITY SELECT */
+    while (1) {
+        sleep(1);
+        printf("\nSelect a city: ");
         city_node_t* user_city = NULL;
         unsigned user_city_status = city_get(list, &user_city);
         if (user_city_status == STATUS_EXIT ) {
