@@ -285,8 +285,8 @@ int city_save_cache(city_data_t* data) {
     }
     tinydir_close(&dir);*/
     if (mkdir("./cities", 0755) != 0 && errno != EEXIST) {
-    perror("mkdir");
-    return STATUS_FAIL;
+        perror("mkdir");
+        return STATUS_FAIL;
     }
 
     json_t* root = json_object();
