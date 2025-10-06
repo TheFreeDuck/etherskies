@@ -1,12 +1,3 @@
-<<<<<<< HEAD
-/cities
-/build
-etherskies-main.code-workspace
-test
-test_jansson.c
-settings.json
-Makefile
-=======
 build/
 lib/jansson-2.13.1
 weather_cache.json
