@@ -172,7 +172,7 @@ int http_load_cache(city_node_t* city_node, char* fp) {
     if (jhum && json_is_number(jhum))
         city_node->data->rel_hum = json_number_value(jhum);
 
-    time_t cached = (jcached_at && json_is_integer(jcached_at))
+    time_t cached              = (jcached_at && json_is_integer(jcached_at))
                                      ? (time_t)json_integer_value(jcached_at)
                                      : 0;
     city_node->data->cached_at = cached;
