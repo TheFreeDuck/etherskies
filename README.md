@@ -6,6 +6,7 @@ Etherskies is a command-line weather application that fetches real-time weather 
 
 ![C](https://img.shields.io/badge/c-%2300599C.svg?style=flat&logo=c&logoColor=white)
 ![Linux](https://img.shields.io/badge/Linux-FCC624?style=flat&logo=linux&logoColor=black)
+[![Check Formatting](https://github.com/timackevald/etherskies/actions/workflows/clang-format.yml/badge.svg)](https://github.com/timackevald/etherskies/actions/workflows/clang-format.yml)
 
 ## Features
 
@@ -19,7 +20,7 @@ Etherskies is a command-line weather application that fetches real-time weather 
 
 Before building Etherskies, ensure you have the following installed:
 
-- GCC (C11 compatible)
+- GCC (C99 compatible)
 - libcurl development files
 - Jansson library (linked via symlink)
 - Make
@@ -45,7 +46,7 @@ brew install curl
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/etherskies.git
+git clone https://github.com/timackevald/etherskies.git
 cd etherskies
 ```
 
@@ -169,7 +170,7 @@ make clean    # Remove build artifacts
 
 ### Compiler Flags
 
-- `-std=c11` - C11 standard
+- `-std=c99` - C99 standard
 - `-Wall -Wextra` - Enable warnings
 - `-MMD -MP` - Generate dependency files
 - `-g` - Debug symbols
@@ -200,7 +201,7 @@ https://api.open-meteo.com/v1/forecast?latitude=59.33&longitude=18.07&current=te
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is licensed under the MIT License - see the [License](LICENSE) file for details.
 
 ## Acknowledgments
 
