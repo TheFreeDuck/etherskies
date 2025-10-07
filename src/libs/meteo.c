@@ -3,9 +3,6 @@
 */
 
 #include "meteo.h"
-
-#include "city.h"
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

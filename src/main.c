@@ -8,7 +8,6 @@
 
 #include "libs/HTTP.h"
 #include "libs/city.h"
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -17,13 +16,11 @@
 
 int main() {
 
-    /* INIT APP */
     city_list_t* list = NULL;
     if (city_init(&list) != STATUS_OK) {
         fprintf(stderr, "Failed to init app.\n");
         return STATUS_FAIL;
     }
-    sleep(1);
 
     while (1) {
 
@@ -31,7 +28,6 @@ int main() {
             fprintf(stderr, "Failed to print list.\n");
             return STATUS_FAIL;
         }
-        sleep(1);
 
         printf("Select a city: ");
         city_node_t* user_city        = NULL;

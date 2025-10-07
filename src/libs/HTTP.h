@@ -6,7 +6,6 @@
 
 #    include "city.h"
 #    include "meteo.h"
-
 #    include <stdio.h>
 
 /* ----- Struct for CURL callback ----- */

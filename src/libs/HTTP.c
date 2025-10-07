@@ -6,10 +6,8 @@
 */
 
 #include "HTTP.h"
-
 #include "city.h"
 #include "jansson.h"
-
 #include <curl/curl.h>
 #include <stdio.h>
 #include <stdlib.h>

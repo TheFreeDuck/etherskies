@@ -11,11 +11,9 @@
 */
 
 #include "city.h"
-
 #include "jansson.h"
 #include "meteo.h"
 #include "tinydir.h"
-
 #include <errno.h>
 #include <limits.h>
 #include <stdio.h>
