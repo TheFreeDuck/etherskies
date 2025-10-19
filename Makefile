@@ -94,7 +94,7 @@ workflow-build:
 .PHONY: workflow-format
 workflow-format:
 	DOCKER_HOST="$${DOCKER_HOST}" act push --job format-check \
-       -P ubuntu-latest=catthehacker/ubuntu:act-latest
+       -P ubuntu-latest=teeks99/clang-ubuntu:19
 
 .PHONY: workflow
 workflow: workflow-build workflow-format
